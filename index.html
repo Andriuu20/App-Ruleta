@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Simulador de Ruleta</title>
+  <meta name="description" content="Simula estrategias de ruleta y mira sus probabilidades reales. Sin predicciones: todo se calcula en tu teléfono.">
+  <meta name="theme-color" content="#f6f5f1" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#141413" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/styles.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <h1>Simulador de ruleta</h1>
+    <p class="lede">Probabilidades reales de cada estrategia. Sin predicciones: todo se calcula en tu teléfono.</p>
+  </header>
+
+  <main>
+    <details class="card notice">
+      <summary>Qué hace (y qué no hace) esta app</summary>
+      <ul>
+        <li><strong>No predice números ni zonas.</strong> En una ruleta justa cada tirada es independiente: lo que salió antes no cambia la siguiente.</li>
+        <li><strong>No existen números “calientes” o “fríos”.</strong> Creerlo es la falacia del jugador.</li>
+        <li><strong>Ninguna estrategia vence a la casa.</strong> La ventaja es del 2,7 % en la ruleta europea y del 5,26 % en la americana, juegues como juegues. Las progresiones solo cambian <em>cómo</em> se reparten las pérdidas.</li>
+      </ul>
+    </details>
+
+    <form id="config" class="card" novalidate>
+      <h2>Configuración</h2>
+
+      <fieldset class="field">
+        <legend>Ruleta</legend>
+        <div class="segmented" role="radiogroup">
+          <label><input type="radio" name="wheel" value="european" checked><span>Europea (0)</span></label>
+          <label><input type="radio" name="wheel" value="american"><span>Americana (0 y 00)</span></label>
+        </div>
+      </fieldset>
+
+      <div class="field">
+        <label for="bet">Apuesta</label>
+        <select id="bet" name="bet"></select>
+        <p id="bet-info" class="hint"></p>
+      </div>
+
+      <div id="picker-wrap" class="field" hidden>
+        <span class="label">Toca los números que quieres cubrir</span>
+        <div id="picker" class="picker" role="group" aria-label="Tablero de números"></div>
+        <p class="hint"><button type="button" id="picker-clear" class="link">Borrar selección</button></p>
+      </div>
+
+      <div class="field">
+        <label for="strategy">Estrategia</label>
+        <select id="strategy" name="strategy"></select>
+        <p id="strategy-help" class="hint"></p>
+      </div>
+
+      <fieldset id="custom" class="field custom" hidden>
+        <legend>Reglas personalizadas</legend>
+        <div class="rule">
+          <span class="rule-title">Tras perder</span>
+          <select name="lossMode" aria-label="Tras perder">
+            <option value="apply">cambiar apuesta</option>
+            <option value="reset">volver a la inicial</option>
+            <option value="keep">mantener</option>
+          </select>
+          <label class="inline" data-for="lossMode">× <input type="number" name="lossMult" value="2" min="0" step="0.1" inputmode="decimal"></label>
+          <label class="inline" data-for="lossMode">+ <input type="number" name="lossAdd" value="0" step="1" inputmode="decimal"> unid.</label>
+        </div>
+        <div class="rule">
+          <span class="rule-title">Tras ganar</span>
+          <select name="winMode" aria-label="Tras ganar">
+            <option value="reset">volver a la inicial</option>
+            <option value="apply">cambiar apuesta</option>
+            <option value="keep">mantener</option>
+          </select>
+          <label class="inline" data-for="winMode">× <input type="number" name="winMult" value="1" min="0" step="0.1" inputmode="decimal"></label>
+          <label class="inline" data-for="winMode">+ <input type="number" name="winAdd" value="0" step="1" inputmode="decimal"> unid.</label>
+        </div>
+        <div class="grid-2">
+          <label class="field">Reiniciar tras victorias seguidas
+            <input type="number" name="resetAfterWins" value="0" min="0" step="1" inputmode="numeric"></label>
+          <label class="field">Reiniciar tras derrotas seguidas
+            <input type="number" name="resetAfterLosses" value="0" min="0" step="1" inputmode="numeric"></label>
+        </div>
+        <p class="hint">“Unid.” = apuesta inicial. 0 = nunca reiniciar. La apuesta nunca baja de la inicial.</p>
+      </fieldset>
+
+      <div class="grid-2">
+        <label class="field">Banca inicial
+          <input type="number" name="bankroll" value="200" min="1" step="1" inputmode="decimal" required></label>
+        <label class="field">Apuesta inicial
+          <input type="number" name="baseBet" value="5" min="0.01" step="0.5" inputmode="decimal" required></label>
+        <label class="field">Objetivo de ganancia
+          <input type="number" name="target" value="100" min="0" step="1" inputmode="decimal"></label>
+        <label class="field">Máximo de tiradas
+          <input type="number" name="maxSpins" value="500" min="1" max="100000" step="1" inputmode="numeric" required></label>
+        <label class="field">Máximo de mesa
+          <input type="number" name="tableMax" value="500" min="0" step="1" inputmode="decimal"></label>
+        <label class="field">Sesiones a simular
+          <select name="sessions">
+            <option value="1000">1.000</option>
+            <option value="10000" selected>10.000</option>
+            <option value="50000">50.000</option>
+            <option value="100000">100.000</option>
+          </select></label>
+      </div>
+      <p class="hint">Objetivo 0 = jugar hasta la ruina o hasta agotar las tiradas. Máximo de mesa 0 = sin límite. Hay ruina cuando la banca ya no cubre la apuesta inicial.</p>
+
+      <p id="form-error" class="error" role="alert" hidden></p>
+      <button type="submit" id="run" class="primary">Simular</button>
+      <div id="progress" class="progress" hidden><div></div></div>
+    </form>
+
+    <section id="results" class="card" hidden aria-live="polite">
+      <h2>Resultados</h2>
+      <p id="summary" class="summary"></p>
+
+      <div class="tiles">
+        <div class="tile"><span class="tile-label">Llega al objetivo</span><span class="tile-value" id="t-target"></span><span class="tile-sub" id="t-target-ci"></span></div>
+        <div class="tile"><span class="tile-label">Ruina</span><span class="tile-value" id="t-ruin"></span><span class="tile-sub" id="t-ruin-sub"></span></div>
+        <div class="tile"><span class="tile-label">Se acaban las tiradas</span><span class="tile-value" id="t-timeout"></span><span class="tile-sub" id="t-timeout-sub"></span></div>
+        <div class="tile"><span class="tile-label">Ganancia media por sesión</span><span class="tile-value" id="t-profit"></span><span class="tile-sub" id="t-profit-sub"></span></div>
+      </div>
+
+      <div class="chart-block">
+        <h3>Evolución de la banca</h3>
+        <p class="hint">Sesiones de ejemplo elegidas al azar. Toca una línea para ver su detalle.</p>
+        <div class="legend">
+          <span><i class="sw sw-target"></i>Llegó al objetivo</span>
+          <span><i class="sw sw-ruin"></i>Ruina</span>
+          <span><i class="sw sw-timeout"></i>Se acabaron las tiradas</span>
+          <span><i class="sw sw-ref"></i>Banca inicial / objetivo</span>
+        </div>
+        <div class="chart" id="paths-chart"><canvas role="img" aria-label="Evolución de la banca en sesiones de ejemplo"></canvas><div class="tooltip" hidden></div></div>
+      </div>
+
+      <div class="chart-block">
+        <h3>Resultado final de todas las sesiones</h3>
+        <p class="hint">Cuántas sesiones terminaron con cada ganancia o pérdida.</p>
+        <div class="chart short" id="hist-chart"><canvas role="img" aria-label="Histograma del resultado final"></canvas><div class="tooltip" hidden></div></div>
+      </div>
+
+      <h3>Detalle</h3>
+      <dl id="details" class="details"></dl>
+    </section>
+
+    <section class="card">
+      <h2>Probabilidad de cada apuesta</h2>
+      <p class="hint" id="odds-caption"></p>
+      <div class="table-wrap">
+        <table class="odds">
+          <thead><tr><th scope="col">Apuesta</th><th scope="col">Números</th><th scope="col">Gana</th><th scope="col">Paga</th><th scope="col">Esperanza</th></tr></thead>
+          <tbody id="odds-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>Esta app es educativa y no permite apostar dinero. Si el juego deja de ser un entretenimiento, busca ayuda: en España, <a href="https://www.jugarbien.es" rel="noopener" target="_blank">jugarbien.es</a>.</p>
+  </footer>
+</body>
+</html>
