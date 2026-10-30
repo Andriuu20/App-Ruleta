@@ -231,3 +231,63 @@ export class HistogramChart extends CanvasChart {
     }
   }
 }
+
+export class FrequencyChart extends CanvasChart {
+  // data = { labels: string[], counts: number[], expected: number, total }
+  draw() {
+    const { ctx, data } = this;
+    const n = data.counts.length;
+    const yMax = Math.max(data.expected, ...data.counts) * 1.12 || 1;
+    this.axes(0, n, 0, yMax, () => '');
+
+    const slot = this.plotW / n;
+    const gap = Math.min(2, slot * 0.25);
+    const base = this.sy(0);
+    const hoverIdx = this.hover ? Math.floor((this.hover.x - PAD.left) / slot) : -1;
+    const bar = css('--bar');
+
+    ctx.fillStyle = css('--muted');
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    const every = slot < 14 ? 3 : 1;
+    data.labels.forEach((label, i) => {
+      if (i % every === 0) ctx.fillText(label, PAD.left + (i + 0.5) * slot, this.h - PAD.bottom + 8);
+    });
+
+    data.counts.forEach((c, i) => {
+      if (!c) return;
+      const x = PAD.left + i * slot + gap / 2;
+      const y = this.sy(c);
+      const bw = Math.max(1, slot - gap);
+      const r = Math.min(4, bw / 2, base - y);
+      ctx.globalAlpha = hoverIdx >= 0 && hoverIdx !== i ? 0.45 : 1;
+      ctx.fillStyle = bar;
+      ctx.beginPath();
+      ctx.moveTo(x, base);
+      ctx.lineTo(x, y + r);
+      ctx.arcTo(x, y, x + r, y, r);
+      ctx.lineTo(x + bw - r, y);
+      ctx.arcTo(x + bw, y, x + bw, y + r, r);
+      ctx.lineTo(x + bw, base);
+      ctx.closePath();
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+
+    const ey = Math.round(this.sy(data.expected)) + 0.5;
+    ctx.setLineDash([4, 3]);
+    ctx.strokeStyle = css('--ref');
+    ctx.beginPath(); ctx.moveTo(PAD.left, ey); ctx.lineTo(this.w - PAD.right, ey); ctx.stroke();
+    ctx.setLineDash([]);
+
+    if (hoverIdx >= 0 && hoverIdx < n) {
+      const c = data.counts[hoverIdx];
+      const share = data.total ? (c / data.total) * 100 : 0;
+      this.showTooltip(
+        `<div><strong>Número ${data.labels[hoverIdx]}</strong></div>` +
+        `<div>${c} ${c === 1 ? 'vez' : 'veces'} (${share.toLocaleString('es-ES', { maximumFractionDigits: 1 })} %)</div>` +
+        `<div>Esperado: ${data.expected.toLocaleString('es-ES', { maximumFractionDigits: 1 })}</div>`,
+        PAD.left + (hoverIdx + 0.5) * slot, this.sy(c));
+    }
+  }
+}

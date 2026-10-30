@@ -19,145 +19,303 @@
     <p class="lede">Probabilidades reales de cada estrategia. Sin predicciones: todo se calcula en tu teléfono.</p>
   </header>
 
+  <nav class="tabs" aria-label="Secciones">
+    <a href="#simulador">Simulador</a>
+    <a href="#historial">Historial</a>
+    <a href="#perfil">Perfil</a>
+    <a href="#control">Control</a>
+  </nav>
+
   <main>
-    <details class="card notice">
-      <summary>Qué hace (y qué no hace) esta app</summary>
-      <ul>
-        <li><strong>No predice números ni zonas.</strong> En una ruleta justa cada tirada es independiente: lo que salió antes no cambia la siguiente.</li>
-        <li><strong>No existen números “calientes” o “fríos”.</strong> Creerlo es la falacia del jugador.</li>
-        <li><strong>Ninguna estrategia vence a la casa.</strong> La ventaja es del 2,7 % en la ruleta europea y del 5,26 % en la americana, juegues como juegues. Las progresiones solo cambian <em>cómo</em> se reparten las pérdidas.</li>
-      </ul>
-    </details>
+    <div data-view="simulador">
+      <details class="card notice">
+        <summary>Qué hace (y qué no hace) esta app</summary>
+        <ul>
+          <li><strong>No predice números ni zonas.</strong> En una ruleta justa cada tirada es independiente: lo que salió antes no cambia la siguiente.</li>
+          <li><strong>No existen números “calientes” o “fríos”.</strong> Creerlo es la falacia del jugador.</li>
+          <li><strong>Ninguna estrategia vence a la casa.</strong> La ventaja es del 2,7 % en la ruleta europea y del 5,26 % en la americana, juegues como juegues. Las progresiones solo cambian <em>cómo</em> se reparten las pérdidas.</li>
+        </ul>
+      </details>
 
-    <form id="config" class="card" novalidate>
-      <h2>Configuración</h2>
+      <form id="config" class="card" novalidate>
+        <h2>Configuración</h2>
 
-      <fieldset class="field">
-        <legend>Ruleta</legend>
-        <div class="segmented" role="radiogroup">
-          <label><input type="radio" name="wheel" value="european" checked><span>Europea (0)</span></label>
-          <label><input type="radio" name="wheel" value="american"><span>Americana (0 y 00)</span></label>
+        <fieldset class="field">
+          <legend>Ruleta</legend>
+          <div class="segmented" role="radiogroup">
+            <label><input type="radio" name="wheel" value="european" checked><span>Europea (0)</span></label>
+            <label><input type="radio" name="wheel" value="american"><span>Americana (0 y 00)</span></label>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <label for="bet">Apuesta</label>
+          <select id="bet" name="bet"></select>
+          <p id="bet-info" class="hint"></p>
         </div>
-      </fieldset>
 
-      <div class="field">
-        <label for="bet">Apuesta</label>
-        <select id="bet" name="bet"></select>
-        <p id="bet-info" class="hint"></p>
-      </div>
-
-      <div id="picker-wrap" class="field" hidden>
-        <span class="label">Toca los números que quieres cubrir</span>
-        <div id="picker" class="picker" role="group" aria-label="Tablero de números"></div>
-        <p class="hint"><button type="button" id="picker-clear" class="link">Borrar selección</button></p>
-      </div>
-
-      <div class="field">
-        <label for="strategy">Estrategia</label>
-        <select id="strategy" name="strategy"></select>
-        <p id="strategy-help" class="hint"></p>
-      </div>
-
-      <fieldset id="custom" class="field custom" hidden>
-        <legend>Reglas personalizadas</legend>
-        <div class="rule">
-          <span class="rule-title">Tras perder</span>
-          <select name="lossMode" aria-label="Tras perder">
-            <option value="apply">cambiar apuesta</option>
-            <option value="reset">volver a la inicial</option>
-            <option value="keep">mantener</option>
-          </select>
-          <label class="inline" data-for="lossMode">× <input type="number" name="lossMult" value="2" min="0" step="0.1" inputmode="decimal"></label>
-          <label class="inline" data-for="lossMode">+ <input type="number" name="lossAdd" value="0" step="1" inputmode="decimal"> unid.</label>
+        <div id="picker-wrap" class="field" hidden>
+          <span class="label">Toca los números que quieres cubrir</span>
+          <div id="picker" class="picker" role="group" aria-label="Tablero de números"></div>
+          <p class="hint"><button type="button" id="picker-clear" class="link">Borrar selección</button></p>
         </div>
-        <div class="rule">
-          <span class="rule-title">Tras ganar</span>
-          <select name="winMode" aria-label="Tras ganar">
-            <option value="reset">volver a la inicial</option>
-            <option value="apply">cambiar apuesta</option>
-            <option value="keep">mantener</option>
-          </select>
-          <label class="inline" data-for="winMode">× <input type="number" name="winMult" value="1" min="0" step="0.1" inputmode="decimal"></label>
-          <label class="inline" data-for="winMode">+ <input type="number" name="winAdd" value="0" step="1" inputmode="decimal"> unid.</label>
+
+        <div class="field">
+          <label for="strategy">Estrategia</label>
+          <select id="strategy" name="strategy"></select>
+          <p id="strategy-help" class="hint"></p>
         </div>
+
+        <fieldset id="custom" class="field custom" hidden>
+          <legend>Reglas personalizadas</legend>
+          <div class="rule">
+            <span class="rule-title">Tras perder</span>
+            <select name="lossMode" aria-label="Tras perder">
+              <option value="apply">cambiar apuesta</option>
+              <option value="reset">volver a la inicial</option>
+              <option value="keep">mantener</option>
+            </select>
+            <label class="inline" data-for="lossMode">× <input type="number" name="lossMult" value="2" min="0" step="0.1" inputmode="decimal"></label>
+            <label class="inline" data-for="lossMode">+ <input type="number" name="lossAdd" value="0" step="1" inputmode="decimal"> unid.</label>
+          </div>
+          <div class="rule">
+            <span class="rule-title">Tras ganar</span>
+            <select name="winMode" aria-label="Tras ganar">
+              <option value="reset">volver a la inicial</option>
+              <option value="apply">cambiar apuesta</option>
+              <option value="keep">mantener</option>
+            </select>
+            <label class="inline" data-for="winMode">× <input type="number" name="winMult" value="1" min="0" step="0.1" inputmode="decimal"></label>
+            <label class="inline" data-for="winMode">+ <input type="number" name="winAdd" value="0" step="1" inputmode="decimal"> unid.</label>
+          </div>
+          <div class="grid-2">
+            <label class="field">Reiniciar tras victorias seguidas
+              <input type="number" name="resetAfterWins" value="0" min="0" step="1" inputmode="numeric"></label>
+            <label class="field">Reiniciar tras derrotas seguidas
+              <input type="number" name="resetAfterLosses" value="0" min="0" step="1" inputmode="numeric"></label>
+          </div>
+          <p class="hint">“Unid.” = apuesta inicial. 0 = nunca reiniciar. La apuesta nunca baja de la inicial.</p>
+        </fieldset>
+
         <div class="grid-2">
-          <label class="field">Reiniciar tras victorias seguidas
-            <input type="number" name="resetAfterWins" value="0" min="0" step="1" inputmode="numeric"></label>
-          <label class="field">Reiniciar tras derrotas seguidas
-            <input type="number" name="resetAfterLosses" value="0" min="0" step="1" inputmode="numeric"></label>
+          <label class="field">Banca inicial
+            <input type="number" name="bankroll" value="200" min="1" step="1" inputmode="decimal" required></label>
+          <label class="field">Apuesta inicial
+            <input type="number" name="baseBet" value="5" min="0.01" step="0.5" inputmode="decimal" required></label>
+          <label class="field">Objetivo de ganancia
+            <input type="number" name="target" value="100" min="0" step="1" inputmode="decimal"></label>
+          <label class="field">Máximo de tiradas
+            <input type="number" name="maxSpins" value="500" min="1" max="100000" step="1" inputmode="numeric" required></label>
+          <label class="field">Máximo de mesa
+            <input type="number" name="tableMax" value="500" min="0" step="1" inputmode="decimal"></label>
+          <label class="field">Sesiones a simular
+            <select name="sessions">
+              <option value="1000">1.000</option>
+              <option value="10000" selected>10.000</option>
+              <option value="50000">50.000</option>
+              <option value="100000">100.000</option>
+            </select></label>
         </div>
-        <p class="hint">“Unid.” = apuesta inicial. 0 = nunca reiniciar. La apuesta nunca baja de la inicial.</p>
-      </fieldset>
+        <p class="hint">Objetivo 0 = jugar hasta la ruina o hasta agotar las tiradas. Máximo de mesa 0 = sin límite. Hay ruina cuando la banca ya no cubre la apuesta inicial.</p>
 
-      <div class="grid-2">
-        <label class="field">Banca inicial
-          <input type="number" name="bankroll" value="200" min="1" step="1" inputmode="decimal" required></label>
-        <label class="field">Apuesta inicial
-          <input type="number" name="baseBet" value="5" min="0.01" step="0.5" inputmode="decimal" required></label>
-        <label class="field">Objetivo de ganancia
-          <input type="number" name="target" value="100" min="0" step="1" inputmode="decimal"></label>
-        <label class="field">Máximo de tiradas
-          <input type="number" name="maxSpins" value="500" min="1" max="100000" step="1" inputmode="numeric" required></label>
-        <label class="field">Máximo de mesa
-          <input type="number" name="tableMax" value="500" min="0" step="1" inputmode="decimal"></label>
-        <label class="field">Sesiones a simular
-          <select name="sessions">
-            <option value="1000">1.000</option>
-            <option value="10000" selected>10.000</option>
-            <option value="50000">50.000</option>
-            <option value="100000">100.000</option>
-          </select></label>
-      </div>
-      <p class="hint">Objetivo 0 = jugar hasta la ruina o hasta agotar las tiradas. Máximo de mesa 0 = sin límite. Hay ruina cuando la banca ya no cubre la apuesta inicial.</p>
+        <p id="form-error" class="error" role="alert" hidden></p>
+        <button type="submit" id="run" class="primary">Simular</button>
+        <div id="progress" class="progress" hidden><div></div></div>
+      </form>
 
-      <p id="form-error" class="error" role="alert" hidden></p>
-      <button type="submit" id="run" class="primary">Simular</button>
-      <div id="progress" class="progress" hidden><div></div></div>
-    </form>
+      <section id="results" class="card" hidden aria-live="polite">
+        <h2>Resultados</h2>
+        <p id="summary" class="summary"></p>
 
-    <section id="results" class="card" hidden aria-live="polite">
-      <h2>Resultados</h2>
-      <p id="summary" class="summary"></p>
-
-      <div class="tiles">
-        <div class="tile"><span class="tile-label">Llega al objetivo</span><span class="tile-value" id="t-target"></span><span class="tile-sub" id="t-target-ci"></span></div>
-        <div class="tile"><span class="tile-label">Ruina</span><span class="tile-value" id="t-ruin"></span><span class="tile-sub" id="t-ruin-sub"></span></div>
-        <div class="tile"><span class="tile-label">Se acaban las tiradas</span><span class="tile-value" id="t-timeout"></span><span class="tile-sub" id="t-timeout-sub"></span></div>
-        <div class="tile"><span class="tile-label">Ganancia media por sesión</span><span class="tile-value" id="t-profit"></span><span class="tile-sub" id="t-profit-sub"></span></div>
-      </div>
-
-      <div class="chart-block">
-        <h3>Evolución de la banca</h3>
-        <p class="hint">Sesiones de ejemplo elegidas al azar. Toca una línea para ver su detalle.</p>
-        <div class="legend">
-          <span><i class="sw sw-target"></i>Llegó al objetivo</span>
-          <span><i class="sw sw-ruin"></i>Ruina</span>
-          <span><i class="sw sw-timeout"></i>Se acabaron las tiradas</span>
-          <span><i class="sw sw-ref"></i>Banca inicial / objetivo</span>
+        <div class="tiles">
+          <div class="tile"><span class="tile-label">Llega al objetivo</span><span class="tile-value" id="t-target"></span><span class="tile-sub" id="t-target-ci"></span></div>
+          <div class="tile"><span class="tile-label">Ruina</span><span class="tile-value" id="t-ruin"></span><span class="tile-sub" id="t-ruin-sub"></span></div>
+          <div class="tile"><span class="tile-label">Se acaban las tiradas</span><span class="tile-value" id="t-timeout"></span><span class="tile-sub" id="t-timeout-sub"></span></div>
+          <div class="tile"><span class="tile-label">Ganancia media por sesión</span><span class="tile-value" id="t-profit"></span><span class="tile-sub" id="t-profit-sub"></span></div>
         </div>
-        <div class="chart" id="paths-chart"><canvas role="img" aria-label="Evolución de la banca en sesiones de ejemplo"></canvas><div class="tooltip" hidden></div></div>
-      </div>
 
-      <div class="chart-block">
-        <h3>Resultado final de todas las sesiones</h3>
-        <p class="hint">Cuántas sesiones terminaron con cada ganancia o pérdida.</p>
-        <div class="chart short" id="hist-chart"><canvas role="img" aria-label="Histograma del resultado final"></canvas><div class="tooltip" hidden></div></div>
-      </div>
+        <div class="chart-block">
+          <h3>Evolución de la banca</h3>
+          <p class="hint">Sesiones de ejemplo elegidas al azar. Toca una línea para ver su detalle.</p>
+          <div class="legend">
+            <span><i class="sw sw-target"></i>Llegó al objetivo</span>
+            <span><i class="sw sw-ruin"></i>Ruina</span>
+            <span><i class="sw sw-timeout"></i>Se acabaron las tiradas</span>
+            <span><i class="sw sw-ref"></i>Banca inicial / objetivo</span>
+          </div>
+          <div class="chart" id="paths-chart"><canvas role="img" aria-label="Evolución de la banca en sesiones de ejemplo"></canvas><div class="tooltip" hidden></div></div>
+        </div>
 
-      <h3>Detalle</h3>
-      <dl id="details" class="details"></dl>
-    </section>
+        <div class="chart-block">
+          <h3>Resultado final de todas las sesiones</h3>
+          <p class="hint">Cuántas sesiones terminaron con cada ganancia o pérdida.</p>
+          <div class="chart short" id="hist-chart"><canvas role="img" aria-label="Histograma del resultado final"></canvas><div class="tooltip" hidden></div></div>
+        </div>
 
-    <section class="card">
-      <h2>Probabilidad de cada apuesta</h2>
-      <p class="hint" id="odds-caption"></p>
-      <div class="table-wrap">
-        <table class="odds">
-          <thead><tr><th scope="col">Apuesta</th><th scope="col">Números</th><th scope="col">Gana</th><th scope="col">Paga</th><th scope="col">Esperanza</th></tr></thead>
-          <tbody id="odds-body"></tbody>
-        </table>
-      </div>
-    </section>
+        <h3>Detalle</h3>
+        <dl id="details" class="details"></dl>
+      </section>
+
+      <section class="card">
+        <h2>Probabilidad de cada apuesta</h2>
+        <p class="hint" id="odds-caption"></p>
+        <div class="table-wrap">
+          <table class="odds">
+            <thead><tr><th scope="col">Apuesta</th><th scope="col">Números</th><th scope="col">Gana</th><th scope="col">Paga</th><th scope="col">Esperanza</th></tr></thead>
+            <tbody id="odds-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <div data-view="historial" id="history" hidden>
+      <section class="card">
+        <h2>Análisis de historial</h2>
+        <p class="hint">Apunta las tiradas que has visto para ver cómo se han repartido. Es un resumen del pasado: no cambia la probabilidad de la próxima tirada.</p>
+
+        <fieldset class="field">
+          <legend>Ruleta</legend>
+          <div class="segmented" role="radiogroup">
+            <label><input type="radio" name="hwheel" value="european" checked><span>Europea (0)</span></label>
+            <label><input type="radio" name="hwheel" value="american"><span>Americana (0 y 00)</span></label>
+          </div>
+        </fieldset>
+
+        <span class="label">Toca cada número según sale</span>
+        <div id="h-board" class="picker input" role="group" aria-label="Añadir tirada"></div>
+        <div class="actions">
+          <button type="button" id="h-undo" class="secondary">Deshacer última</button>
+          <button type="button" id="h-clear" class="secondary">Borrar todo</button>
+        </div>
+
+        <details class="paste">
+          <summary>Pegar una lista de números</summary>
+          <textarea id="h-paste" rows="4" placeholder="Ej.: 17 32 0 5 21 …  (de la más antigua a la más reciente)"></textarea>
+          <button type="button" id="h-add" class="secondary">Añadir al historial</button>
+          <p id="h-paste-msg" class="hint" aria-live="polite"></p>
+        </details>
+
+        <span class="label">Tiradas registradas: <span id="h-count">0</span> <span class="hint">(la más reciente primero)</span></span>
+        <div id="h-recent" class="recent"></div>
+      </section>
+
+      <section class="card" id="h-results" hidden>
+        <h2>Estadísticas</h2>
+        <div id="h-verdict" class="status" aria-live="polite"></div>
+
+        <div class="chart-block">
+          <h3>Veces que ha salido cada número</h3>
+          <div class="legend">
+            <span><i class="sw sw-bar"></i>Veces observadas</span>
+            <span><i class="sw sw-ref"></i>Lo esperado en una ruleta justa</span>
+          </div>
+          <div class="chart short" id="h-chart"><canvas role="img" aria-label="Frecuencia de cada número"></canvas><div class="tooltip" hidden></div></div>
+        </div>
+
+        <h3>Por grupos</h3>
+        <div id="h-groups"></div>
+        <p class="hint" id="h-power"></p>
+      </section>
+    </div>
+
+    <div data-view="perfil" hidden>
+      <form id="profile" class="card" novalidate>
+        <h2>¿Qué apuesta encaja contigo?</h2>
+        <p class="hint">La recomendación depende de lo que buscas, no del historial. Todas las apuestas pierden lo mismo de media; lo que cambia es el riesgo.</p>
+
+        <fieldset class="field">
+          <legend>Lo que buscas</legend>
+          <div class="choices">
+            <label><input type="radio" name="goal" value="last" checked><span><strong>Que el dinero me dure</strong>Jugar más rato con pocos sobresaltos</span></label>
+            <label><input type="radio" name="goal" value="balance"><span><strong>Un término medio</strong>Algo de emoción sin arriesgarlo todo</span></label>
+            <label><input type="radio" name="goal" value="big"><span><strong>Opción a un premio grande</strong>Aceptando perder casi siempre</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend>Ruleta</legend>
+          <div class="segmented" role="radiogroup">
+            <label><input type="radio" name="pwheel" value="european" checked><span>Europea (0)</span></label>
+            <label><input type="radio" name="pwheel" value="american"><span>Americana (0 y 00)</span></label>
+          </div>
+        </fieldset>
+
+        <div class="grid-2">
+          <label class="field">Presupuesto
+            <input type="number" name="budget" value="100" min="1" step="1" inputmode="decimal"></label>
+          <label class="field">Apuesta por tirada
+            <input type="number" name="bet" value="2" min="0.1" step="0.5" inputmode="decimal"></label>
+          <label class="field">Tiradas por hora
+            <input type="number" name="spinsPerHour" value="40" min="1" max="300" step="1" inputmode="numeric"></label>
+          <label class="field">Horas de juego
+            <input type="number" name="hours" value="1" min="0.25" max="12" step="0.25" inputmode="decimal"></label>
+        </div>
+        <p class="hint">En una mesa real salen unas 30-50 tiradas por hora; en ruleta electrónica, bastantes más.</p>
+        <p id="p-error" class="error" role="alert" hidden></p>
+      </form>
+
+      <section class="card" id="p-results" aria-live="polite">
+        <div id="p-reco" class="reco"></div>
+        <button type="button" id="p-try" class="primary">Probarla en el simulador</button>
+
+        <h3>Comparativa</h3>
+        <p class="hint" id="p-caption"></p>
+        <div id="p-body" class="compare"></div>
+      </section>
+    </div>
+
+    <div data-view="control" hidden>
+      <section class="card" id="s-setup">
+        <h2>Control de gasto</h2>
+        <p class="hint">Decide tus límites antes de jugar, no durante. Anota lo que ganas o pierdes y la app te avisa al acercarte al límite. Todo se guarda solo en este teléfono.</p>
+        <form id="s-form" novalidate>
+          <div class="grid-2">
+            <label class="field">Pérdida máxima
+              <input type="number" name="lossLimit" value="50" min="1" step="1" inputmode="decimal"></label>
+            <label class="field">Tiempo máximo (min)
+              <input type="number" name="timeLimit" value="60" min="1" step="5" inputmode="numeric"></label>
+          </div>
+          <label class="field">Retirarme si gano (opcional)
+            <input type="number" name="winStop" value="" min="0" step="1" inputmode="decimal" placeholder="Ej.: 30"></label>
+          <p id="s-error" class="error" role="alert" hidden></p>
+          <button type="submit" class="primary">Empezar sesión</button>
+        </form>
+      </section>
+
+      <section class="card" id="s-active" hidden>
+        <h2>Sesión en curso</h2>
+        <div id="s-status" class="status" role="status"></div>
+
+        <div class="tiles three">
+          <div class="tile"><span class="tile-label">Tiempo</span><span class="tile-value" id="s-elapsed"></span><span class="tile-sub" id="s-time-sub"></span></div>
+          <div class="tile"><span class="tile-label">Resultado</span><span class="tile-value" id="s-net"></span><span class="tile-sub" id="s-net-sub"></span></div>
+          <div class="tile"><span class="tile-label">Puedes perder aún</span><span class="tile-value" id="s-left"></span><span class="tile-sub" id="s-left-sub"></span></div>
+        </div>
+
+        <div class="meter" id="s-money-meter" role="meter" aria-valuemin="0" aria-valuemax="100" aria-label="Límite de pérdida usado"><span class="meter-label"></span><div class="meter-track"><div class="meter-fill"></div></div></div>
+        <div class="meter" id="s-time-meter" role="meter" aria-valuemin="0" aria-valuemax="100" aria-label="Tiempo usado"><span class="meter-label"></span><div class="meter-track"><div class="meter-fill"></div></div></div>
+
+        <label class="field">Importe
+          <input type="number" id="s-amount" min="0" step="1" inputmode="decimal" placeholder="Cuánto has ganado o perdido"></label>
+        <div class="actions two">
+          <button type="button" id="s-won" class="secondary">+ Gané</button>
+          <button type="button" id="s-lost" class="secondary">− Perdí</button>
+        </div>
+        <ul id="s-entries" class="log"></ul>
+        <div class="actions">
+          <button type="button" id="s-undo" class="secondary">Deshacer última</button>
+          <button type="button" id="s-end" class="secondary danger">Terminar sesión</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Sesiones anteriores</h2>
+        <p id="s-past-empty" class="hint">Aún no has terminado ninguna sesión.</p>
+        <ul id="s-past" class="log"></ul>
+        <p id="s-past-total" class="summary"></p>
+        <button type="button" id="s-past-clear" class="link" hidden>Borrar registro</button>
+      </section>
+    </div>
   </main>
 
   <footer class="app-footer">

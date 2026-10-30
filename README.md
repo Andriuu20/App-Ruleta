@@ -19,6 +19,9 @@ service worker necesitan HTTP. Para publicarla basta cualquier hosting estático
 
 ## Qué hace
 
+La app tiene cuatro pestañas:
+
+### Simulador
 - **Apuestas:** rojo/negro, par/impar, falta/pasa, docenas, columnas, sectores
   (Vecinos, Tercio, Huérfanos, Juego del cero; solo ruleta europea) y números
   elegidos en el tablero.
@@ -33,6 +36,27 @@ service worker necesitan HTTP. Para publicarla basta cualquier hosting estático
   percentiles, gráfico de la banca en sesiones de ejemplo e histograma del
   resultado final.
 - Tabla con la probabilidad, el pago y la esperanza de cada apuesta.
+
+### Historial
+- Se introducen tiradas tocando el tablero o pegando una lista.
+- Frecuencia por número, color, par/impar, falta/pasa, docenas, columnas y
+  sectores de la rueda, frente a lo esperado.
+- Test chi-cuadrado con una interpretación prudente (normal / inusual / poco
+  habitual) y aviso cuando hay pocas tiradas para que el test sea fiable.
+- Cuántas tiradas harían falta para detectar un sesgo real. Nada de esto se usa
+  para predecir.
+
+### Perfil
+- Recomendación según lo que busca el jugador (que el dinero dure, término medio
+  o premio grande), nunca según el historial.
+- Comparativa simulada de sencilla, docena, seisena y pleno con el presupuesto, la
+  apuesta y el tiempo de juego indicados, y botón para abrirla en el simulador.
+
+### Control
+- Límite de pérdida, tiempo máximo y objetivo de retirada opcional.
+- Se anotan las ganancias y pérdidas; avisos al 80 % y al 100 % de cada límite
+  (con vibración si el teléfono la admite) y registro de sesiones anteriores.
+- Todo se guarda solo en el teléfono (`localStorage`).
 
 ## Modelo
 
@@ -55,12 +79,18 @@ service worker necesitan HTTP. Para publicarla basta cualquier hosting estático
 | `js/simulator.js` | Simulación Monte Carlo y estadísticas |
 | `js/worker.js` | Ejecuta la simulación en un Web Worker |
 | `js/chart.js` | Gráficos en canvas |
-| `js/app.js` | Interfaz |
+| `js/stats.js` | Estadística del historial y test chi-cuadrado |
+| `js/session.js` | Lógica del control de gasto |
+| `js/board.js`, `js/format.js` | Tablero de números y formato de cifras |
+| `js/views/*.js` | Una vista por pestaña |
+| `js/app.js` | Pestañas y arranque |
 | `sw.js`, `manifest.webmanifest` | Funcionamiento sin conexión e instalación |
+
+## Publicación
+
+La rama `gh-pages` contiene la versión publicada en GitHub Pages:
+https://andriuu20.github.io/App-Ruleta/
 
 ## Próximos pasos
 
-1. Análisis de historial (frecuencias y test chi-cuadrado, sin predicciones).
-2. Recomendación según el perfil del jugador.
-3. Control de gasto: límite de dinero y tiempo por sesión.
-4. Empaquetar para Android e iPhone (Capacitor).
+- Empaquetar para Android e iPhone (Capacitor).

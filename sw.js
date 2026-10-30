@@ -1,11 +1,19 @@
 // Service worker: guarda la app para que funcione sin conexión.
-const CACHE = 'ruleta-v1';
+const CACHE = 'ruleta-v2';
 const FILES = [
   './',
   'index.html',
   'manifest.webmanifest',
   'css/styles.css',
   'js/app.js',
+  'js/board.js',
+  'js/format.js',
+  'js/session.js',
+  'js/stats.js',
+  'js/views/control.js',
+  'js/views/history.js',
+  'js/views/profile.js',
+  'js/views/simulator.js',
   'js/chart.js',
   'js/roulette.js',
   'js/simulator.js',

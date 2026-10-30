@@ -117,8 +117,11 @@ function summarize(r) {
   const variance = r.profits.reduce((s, v) => s + (v - mean) ** 2, 0) / Math.max(1, n - 1);
   const prob = (c) => ({ p: c / n, ci: 1.96 * Math.sqrt((c / n) * (1 - c / n) / n) });
   const meanWagered = r.wageredTotal / n;
-  let winners = 0;
-  for (const v of r.profits) if (v > 1e-9) winners++;
+  let winners = 0, doubled = 0;
+  for (const v of r.profits) {
+    if (v > 1e-9) winners++;
+    if (v >= r.cfg.bankroll - 1e-9) doubled++;
+  }
 
   return {
     covered: r.k,
@@ -131,6 +134,7 @@ function summarize(r) {
     ruin: prob(r.counts[OUTCOME.RUIN]),
     timeout: prob(r.counts[OUTCOME.TIMEOUT]),
     endedInProfit: prob(winners),
+    doubled: prob(doubled),
     meanSpins: r.spinsTotal / n,
     meanSpinsToRuin: r.counts[OUTCOME.RUIN] ? r.spinsToRuin / r.counts[OUTCOME.RUIN] : null,
     meanProfit: mean,
