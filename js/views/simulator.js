@@ -1,10 +1,11 @@
 // Vista "Simulador": configuración, simulación en un Web Worker y resultados.
 
-import { BETS, WHEELS, DOUBLE_ZERO, getBet, betNumbers, betStats, houseEdge } from '../roulette.js';
+import { BETS, WHEELS, DOUBLE_ZERO, getBet, betNumbers, betStats, houseEdge, pocketLabel } from '../roulette.js';
 import { STRATEGIES } from '../strategies.js';
 import { PathsChart, HistogramChart } from '../chart.js';
 import { renderBoard, onBoardTap } from '../board.js';
 import { pct, money, signed, int, ratio, loadJSON, saveJSON } from '../format.js';
+import { nextSpinsOdds, recentHits } from '../stats.js';
 
 const $ = (sel) => document.querySelector(sel);
 const form = $('#config');
@@ -41,12 +42,14 @@ onBoardTap($('#picker'), (n, btn) => {
   selectedNumbers.has(n) ? selectedNumbers.delete(n) : selectedNumbers.add(n);
   btn.setAttribute('aria-pressed', selectedNumbers.has(n));
   updateBetInfo();
+  updateNext();
   save();
 });
 $('#picker-clear').addEventListener('click', () => {
   selectedNumbers.clear();
   buildPicker();
   updateBetInfo();
+  updateNext();
   save();
 });
 
@@ -74,6 +77,89 @@ function updateBetInfo() {
   let text = `Cubre ${k} ${k === 1 ? 'número' : 'números'} · gana ${pct(s.probability)} de las tiradas · paga ${ratio(s.payout)}`;
   if (bet.group === 'Sectores' || (bet.custom && k > 1)) text += ' (la apuesta se reparte por igual entre los números)';
   info.textContent = text;
+}
+
+function zoneName() {
+  const bet = getBet(form.bet.value);
+  if (!bet.custom) return `«${bet.name.replace(/\s*\(.*\)$/, '')}»`;
+  const k = currentNumbers().length;
+  return k === 1 ? `el ${pocketLabel(currentNumbers()[0])}` : `tus ${k} números`;
+}
+
+// Probabilidad exacta de la zona elegida en las próximas tiradas.
+function updateNext() {
+  const numbers = currentNumbers();
+  const k = numbers.length;
+  $('#next').hidden = !k;
+  if (!k) return;
+  const n = Math.round(Number(form.nextSpins.value));
+  const valid = n >= 1 && n <= 1000;
+  form.nextSpins.toggleAttribute('aria-invalid', !valid);
+  if (!valid) return;
+
+  const N = WHEELS[wheel()].pockets;
+  const o = nextSpinsOdds(k, N, n);
+  const name = zoneName();
+  $('#n-once').textContent = pctBounded(o.atLeastOnce);
+  $('#n-none').textContent = pctBounded(o.none);
+  $('#n-expected').textContent =
+    `De media, ${name} sale ${o.expected.toLocaleString('es-ES', { maximumFractionDigits: 1 })} veces en ${int(n)} tiradas ` +
+    `(${pct(o.p)} en cada una).`;
+  $('#n-profit').textContent =
+    `Si apuestas lo mismo a ${name} en cada una de las ${int(n)} tiradas, acabas ganando dinero en el ${pctBounded(o.profit)} de los casos. ` +
+    `Aun así, de media pierdes el ${pct(houseEdge(wheel()), 2)} de lo apostado: cuando pierdes, pierdes más de lo que ganas cuando ganas.`;
+  renderDist(o.dist);
+
+  const history = loadJSON('ruleta.history.v1', null);
+  const hist = $('#n-history');
+  if (history?.wheel === wheel() && history.spins?.length) {
+    const r = recentHits(history.spins, numbers, n);
+    const expected = (r.spins * k) / N;
+    hist.textContent = `En tu historial, ${name} salió ${r.hits} ${r.hits === 1 ? 'vez' : 'veces'} en las últimas ${r.spins} tiradas ` +
+      `(lo esperado: ${expected.toLocaleString('es-ES', { maximumFractionDigits: 1 })}). Eso ya pasó y no cambia las probabilidades de arriba.`;
+  } else {
+    hist.textContent = '';
+  }
+}
+
+// Nunca muestra 0 % ni 100 %: en la ruleta nada es imposible ni seguro.
+function pctBounded(p) {
+  if (p >= 0.9995) return '> 99,9 %';
+  if (p > 0 && p < 0.0005) return '< 0,1 %';
+  return pct(p);
+}
+
+function renderDist(dist) {
+  const n = dist.length - 1;
+  const cdf = [];
+  dist.reduce((s, v, j) => (cdf[j] = s + v), 0);
+  // Recorta las colas muy improbables y agrupa en tramos para que la lista sea corta.
+  let lo = 0, hi = n;
+  while (lo < n && cdf[lo] < 0.005) lo++;
+  while (hi > lo && 1 - cdf[hi - 1] < 0.005) hi--;
+  const width = Math.ceil((hi - lo + 1) / 12);
+  const rows = [];
+  for (let a = lo; a <= hi; a += width) {
+    const b = Math.min(hi, a + width - 1);
+    const below = a === lo ? 0 : cdf[a - 1];
+    const upTo = b === hi ? 1 : cdf[b];
+    let label = a === b ? String(a) : `${a}-${b}`;
+    if (a === lo && lo > 0) label = `${b} o menos`;
+    else if (b === hi && hi < n) label = `${a} o más`;
+    rows.push({ label, p: upTo - below });
+  }
+  const max = Math.max(...rows.map((r) => r.p));
+  const box = $('#n-dist');
+  box.innerHTML = '';
+  for (const r of rows) {
+    const row = document.createElement('div');
+    row.className = 'dist-row';
+    row.setAttribute('role', 'listitem');
+    row.innerHTML = `<span class="dist-label"></span><span class="dist-track"><span class="dist-bar" style="width:${(r.p / max) * 100}%"></span></span><span class="dist-value"></span>`;
+    row.querySelector('.dist-label').textContent = `${r.label} ${r.label === '1' ? 'vez' : 'veces'}`;
+    row.querySelector('.dist-value').textContent = pctBounded(r.p);
+    box.append(row);
+  }
 }
 
 function updateStrategy() {
@@ -159,7 +245,7 @@ function readConfig() {
 
 // ---------- Persistencia (solo comodidad local) ----------
 
-const SAVED_FIELDS = ['wheel', 'bet', 'strategy', 'bankroll', 'baseBet', 'target', 'maxSpins', 'tableMax', 'sessions',
+const SAVED_FIELDS = ['wheel', 'bet', 'nextSpins', 'strategy', 'bankroll', 'baseBet', 'target', 'maxSpins', 'tableMax', 'sessions',
   'lossMode', 'lossMult', 'lossAdd', 'winMode', 'winMult', 'winAdd', 'resetAfterWins', 'resetAfterLosses'];
 
 function save() {
@@ -316,6 +402,7 @@ function refresh() {
   updateBetOptions();
   buildPicker();
   updateBetInfo();
+  updateNext();
   updateStrategy();
   renderOddsTable();
 }
@@ -330,7 +417,12 @@ refresh();
 form.addEventListener('change', (e) => {
   if (e.target.name === 'wheel') { updateBetOptions(); buildPicker(); }
   updateBetInfo();
+  updateNext();
   updateStrategy();
   renderOddsTable();
   save();
 });
+
+form.nextSpins.addEventListener('input', updateNext);
+// El historial puede haber cambiado en su pestaña.
+window.addEventListener('hashchange', () => { if (location.hash === '#simulador' || !location.hash) updateNext(); });

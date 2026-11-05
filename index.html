@@ -60,6 +60,24 @@
           <p class="hint"><button type="button" id="picker-clear" class="link">Borrar selección</button></p>
         </div>
 
+        <fieldset id="next" class="field next">
+          <legend>¿Saldrá en las próximas tiradas?</legend>
+          <label class="inline next-n">En las próximas
+            <input type="number" name="nextSpins" value="10" min="1" max="1000" step="1" inputmode="numeric"> tiradas</label>
+          <div class="next-tiles">
+            <div class="tile"><span class="tile-label">Sale al menos una vez</span><span class="tile-value" id="n-once"></span></div>
+            <div class="tile"><span class="tile-label">No sale ninguna vez</span><span class="tile-value" id="n-none"></span></div>
+          </div>
+          <p class="next-line" id="n-expected"></p>
+          <p class="next-line" id="n-profit"></p>
+          <details class="next-dist">
+            <summary>Cuántas veces puede salir</summary>
+            <div id="n-dist" class="dist" role="list"></div>
+          </details>
+          <p class="hint" id="n-history"></p>
+          <p class="hint">Cada tirada es independiente: aunque esta zona lleve muchas tiradas sin salir, o haya salido mucho, la probabilidad de las siguientes es la misma.</p>
+        </fieldset>
+
         <div class="field">
           <label for="strategy">Estrategia</label>
           <select id="strategy" name="strategy"></select>

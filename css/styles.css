@@ -331,3 +331,20 @@ input[aria-invalid="true"] { border-color: var(--error); }
 .option dt { color: var(--text-2); }
 .option dd { margin: 0; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
 .badge { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 10px; background: var(--accent); color: var(--accent-ink); font-size: 0.72rem; vertical-align: 2px; }
+
+/* ---------- Próximas tiradas ---------- */
+.next { background: var(--surface-2); border-radius: 10px; padding: 12px; font-weight: 400; }
+.next legend { float: left; width: 100%; margin-bottom: 8px; font-size: 0.95rem; }
+.next .tile { background: var(--surface); }
+.next-n { clear: both; margin-bottom: 10px; font-weight: 600; }
+.next-n input { background: var(--surface); }
+.next-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.next-line { margin: 0 0 6px; font-size: 0.92rem; }
+.next-dist { margin: 4px 0 10px; }
+.next-dist summary { cursor: pointer; font-weight: 600; font-size: 0.9rem; color: var(--accent); }
+.dist { display: grid; gap: 4px; margin-top: 8px; font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.dist-row { display: grid; grid-template-columns: 9em 1fr 4.5em; align-items: center; gap: 8px; }
+.dist-track { height: 10px; }
+.dist-bar { display: block; height: 100%; min-width: 2px; background: var(--bar); border-radius: 0 4px 4px 0; }
+.dist-value { text-align: right; color: var(--text-2); }
+.next .hint + .hint { margin-top: 6px; }

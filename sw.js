@@ -1,5 +1,5 @@
 // Service worker: guarda la app para que funcione sin conexión.
-const CACHE = 'ruleta-v2';
+const CACHE = 'ruleta-v3';
 const FILES = [
   './',
   'index.html',

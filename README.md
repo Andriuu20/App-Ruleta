@@ -35,6 +35,11 @@ La app tiene cuatro pestañas:
   ganancia media simulada frente a la teórica (ventaja × total apostado),
   percentiles, gráfico de la banca en sesiones de ejemplo e histograma del
   resultado final.
+- **¿Saldrá en las próximas tiradas?** Para la zona elegida (rojo, docena, vecinos,
+  juego del cero, números…): probabilidad exacta de que salga al menos una vez en
+  las próximas N tiradas, veces esperadas, distribución de aciertos y probabilidad
+  de acabar ganando apostando a ella en todas. Si hay historial, muestra cuántas
+  veces salió en las últimas N tiradas, como dato del pasado que no cambia el cálculo.
 - Tabla con la probabilidad, el pago y la esperanza de cada apuesta.
 
 ### Historial

@@ -63,3 +63,17 @@ test('control de gasto', () => {
   assert.equal(st.level, 'stop');
   assert.deepEqual(closeSession(s, 5), { start: 0, end: 5, net: 55, bets: 3 });
 });
+
+test('probabilidad en las próximas tiradas', async () => {
+  const { nextSpinsOdds, recentHits } = await import('../js/stats.js');
+  const red = nextSpinsOdds(18, 37, 10);
+  close(red.atLeastOnce, 1 - (19 / 37) ** 10, 1e-12);
+  close(red.dist.reduce((s, v) => s + v, 0), 1, 1e-12);
+  close(red.expected, 180 / 37, 1e-12);
+  // Rojo, 10 tiradas a 1 unidad: hay beneficio con 6 aciertos o más.
+  close(red.profit, red.dist.slice(6).reduce((s, v) => s + v, 0), 1e-12);
+  const straight = nextSpinsOdds(1, 37, 37);
+  close(straight.atLeastOnce, 1 - (36 / 37) ** 37, 1e-12);
+  close(nextSpinsOdds(7, 38, 1).atLeastOnce, 7 / 38, 1e-12);
+  assert.deepEqual(recentHits([1, 2, 3, 0, 32], [0, 32, 15], 3), { spins: 3, hits: 2 });
+});

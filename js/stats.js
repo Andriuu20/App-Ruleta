@@ -155,3 +155,30 @@ export function interpret(test) {
   return { level: 'rare', few,
     text: 'Desviación poco habitual. Revisa que el historial esté bien introducido; para hablar de ruleta sesgada harían falta miles de tiradas más que lo confirmen.' };
 }
+
+// Probabilidades exactas (binomial) de una zona que cubre k casillas en las
+// próximas n tiradas. No depende de lo que haya salido antes.
+export function nextSpinsOdds(k, pockets, n) {
+  const p = k / pockets;
+  const dist = new Array(n + 1);
+  dist[0] = (1 - p) ** n;
+  for (let j = 1; j <= n; j++) dist[j] = dist[j - 1] * ((n - j + 1) / j) * (p / (1 - p));
+  // Apostando 1 unidad a la zona en cada tirada: beneficio si W·36/k > n.
+  let profit = 0;
+  for (let j = 0; j <= n; j++) if (j * 36 > n * k + 1e-9) profit += dist[j];
+  return {
+    p,
+    none: dist[0],
+    atLeastOnce: 1 - dist[0],
+    expected: n * p,
+    dist,
+    profit,
+  };
+}
+
+// Veces que la zona salió en las últimas n tiradas del historial.
+export function recentHits(spins, numbers, n) {
+  const set = new Set(numbers);
+  const last = spins.slice(-n);
+  return { spins: last.length, hits: last.filter((s) => set.has(s)).length };
+}
